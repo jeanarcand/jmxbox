@@ -17,6 +17,7 @@ package ca.appbox.monitoring.jmx.jmxbox.commands;
 import javax.management.AttributeNotFoundException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.management.openmbean.CompositeDataSupport;
 
 import ca.appbox.monitoring.jmx.jmxbox.commons.JmxException;
 
@@ -26,6 +27,7 @@ import ca.appbox.monitoring.jmx.jmxbox.commons.JmxException;
  */
 public class JmxReadAttributeCommandImpl extends AbstractJmxCommand {
 
+	private static final String COMPOSITE_ATTRIBUTE_DELIMITER = ".";
 	private String attribute;
 	
 	public JmxReadAttributeCommandImpl(String jmxBean, String attribute) {
@@ -44,7 +46,26 @@ public class JmxReadAttributeCommandImpl extends AbstractJmxCommand {
 		Object value = null;
 		
 		try {
-			value = mBeanServerConnection.getAttribute(mBean, attribute);
+			
+			if (isCompositeAttribute()) {
+				String[] compositeAttribute = attribute.split("\\" + COMPOSITE_ATTRIBUTE_DELIMITER);
+				Object rawAttributeValue = mBeanServerConnection.getAttribute(mBean, compositeAttribute[0]);
+				
+				if (rawAttributeValue instanceof CompositeDataSupport) {
+					value = ((CompositeDataSupport)rawAttributeValue).get(compositeAttribute[1]);
+					
+					if (value == null) {
+						throw new AttributeNotFoundException();
+					}
+				} else {
+					throw new JmxException("The following attribute is not a composite attribute : " + attribute);
+				}
+				
+			} else {
+				value = mBeanServerConnection.getAttribute(mBean, attribute);
+			}
+			
+			
 		} catch (AttributeNotFoundException e) {
 			throw new JmxException("Attribute (" + attribute + ") not found on " + mBean);
 		} catch (Exception e) {
@@ -54,6 +75,10 @@ public class JmxReadAttributeCommandImpl extends AbstractJmxCommand {
 		return new JmxCommandResultImpl(value.toString(), this);
 	}
 	
+	private boolean isCompositeAttribute() {
+		return attribute.contains(COMPOSITE_ATTRIBUTE_DELIMITER);
+	}
+
 	@Override
 	public String toString() {
 		

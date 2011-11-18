@@ -28,14 +28,14 @@ public class JmxContext {
 
 	private static final int ALMOST_INFINITE_REPETITIONS = 0;
 	private static final String DEFAULT_RECORD_DELIMITER = ";";
-	private static final Integer DEFAULT_INTERVAL = 1;
+	private static final Integer DEFAULT_INTERVAL = 1000;
 	private static final Integer DEFAULT_REPETITIONS = 1;
 	
 	private final String host;
 	private final Integer port;
 	private final String user;
 	private final String password;
-	private final Integer intervalInSeconds;
+	private final Integer intervalInMiliseconds;
 	private final Integer repetitions;
 	private final File outputFile;
 	private final String recordDelimiter;
@@ -54,9 +54,9 @@ public class JmxContext {
 		commands = new ArrayList<JmxCommand>();
 		
 		if (intervalInSeconds == null) {
-			this.intervalInSeconds = DEFAULT_INTERVAL;
+			this.intervalInMiliseconds = DEFAULT_INTERVAL;
 		} else {
-			this.intervalInSeconds = intervalInSeconds;
+			this.intervalInMiliseconds = intervalInSeconds;
 		}
 		
 		if (recordDelimiter == null) {
@@ -94,8 +94,8 @@ public class JmxContext {
 		return password;
 	}
 
-	public Integer getIntervalInSeconds() {
-		return intervalInSeconds;
+	public Integer getIntervalInMiliseconds() {
+		return intervalInMiliseconds;
 	}
 
 	public File getOutputFile() {

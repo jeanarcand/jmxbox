@@ -73,7 +73,7 @@ public class JmxClientImpl implements JmxClient {
 				
 				outputStrategy.writeOutput(context, currentResults);
 				
-				Thread.sleep(context.getIntervalInSeconds());
+				Thread.sleep(context.getIntervalInMiliseconds());
 			}
 
 		} catch (Exception e) {
