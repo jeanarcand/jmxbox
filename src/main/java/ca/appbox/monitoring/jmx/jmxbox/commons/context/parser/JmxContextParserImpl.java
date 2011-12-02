@@ -24,7 +24,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 import ca.appbox.monitoring.jmx.jmxbox.JmxClientApp;
@@ -61,16 +60,17 @@ public class JmxContextParserImpl implements JmxContextParser {
 
 		JmxContext jmxContext = null;
 		try {
-			CommandLine commandLine = commandLineParser.parse(buildOptions(), args, false);
+			CommandLine commandLine = commandLineParser.parse(buildOptions(),
+					args, false);
 
 			if (commandLine.hasOption(CommandLineOptions.HELP)
 					|| !isValidCommandLine(commandLine)) {
 				displayUsage();
 			}
-			
+
 			jmxContext = buildJmxContext(commandLine);
 
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			displayUsage();
 			throw new JmxException("");
 		}
@@ -78,7 +78,9 @@ public class JmxContextParserImpl implements JmxContextParser {
 		return jmxContext;
 	}
 
-	private JmxContext buildJmxContext(CommandLine commandLine) throws JmxException {
+	private JmxContext buildJmxContext(CommandLine commandLine)
+			throws JmxException {
+
 		final String host = commandLine.getOptionValue(CommandLineOptions.HOST);
 		final Integer port = Integer.valueOf(commandLine
 				.getOptionValue(CommandLineOptions.PORT));
@@ -102,21 +104,24 @@ public class JmxContextParserImpl implements JmxContextParser {
 						.getOptionValue(CommandLineOptions.RECORD_DELIMITER);
 
 		final Integer repetitions = commandLine
-		.getOptionValue(CommandLineOptions.REPETITIONS) == null ? null
-		: Integer
-				.valueOf(commandLine
+				.getOptionValue(CommandLineOptions.REPETITIONS) == null ? null
+				: Integer.valueOf(commandLine
 						.getOptionValue(CommandLineOptions.REPETITIONS));
 
-		JmxContext context = new JmxContext(host, port, user, password, internal,
-				outputFile, delimiter, repetitions);
-		
+		final boolean utcTimestamps = commandLine
+				.hasOption(CommandLineOptions.UTC_TIMESTAMPS);
+
+		JmxContext context = new JmxContext(host, port, user, password,
+				internal, outputFile, delimiter, repetitions, utcTimestamps);
+
 		addCommands(context, commandLine);
-		
+
 		return context;
 
 	}
-	
-	private void addCommands(JmxContext context, CommandLine commandLine) throws JmxException {
+
+	private void addCommands(JmxContext context, CommandLine commandLine)
+			throws JmxException {
 
 		addReadAttributeCommands(context, commandLine);
 		addInvokeOperationCommands(context, commandLine);
@@ -192,11 +197,12 @@ public class JmxContextParserImpl implements JmxContextParser {
 	}
 
 	private boolean isValidCommandLine(CommandLine commandLine) {
-		
+
 		boolean isValid = commandLine.hasOption(CommandLineOptions.HOST)
-		&& commandLine.hasOption(CommandLineOptions.PORT)
-		&& (commandLine.hasOption(CommandLineOptions.INVOKE) || commandLine.hasOption(CommandLineOptions.READ_ATTRIBUTE));
-			
+				&& commandLine.hasOption(CommandLineOptions.PORT)
+				&& (commandLine.hasOption(CommandLineOptions.INVOKE) || commandLine
+						.hasOption(CommandLineOptions.READ_ATTRIBUTE));
+
 		return isValid;
 	}
 
@@ -217,7 +223,7 @@ public class JmxContextParserImpl implements JmxContextParser {
 
 		Option help = OptionBuilder.withDescription("prints this message")
 				.create(CommandLineOptions.HELP);
-		
+
 		Option host = OptionBuilder.withDescription("jmx host")
 				.withArgName("host").hasArg(true)
 				.create(CommandLineOptions.HOST);
@@ -253,9 +259,10 @@ public class JmxContextParserImpl implements JmxContextParser {
 						"number of repetitions (default : 1, 0 : loop for ever)")
 				.withArgName("repetitions").hasArg(true)
 				.create(CommandLineOptions.REPETITIONS);
-		
+
 		Option readAttribute = OptionBuilder
-				.withDescription("attribute(s) to read (mBeanName;attr1;attr2;attrN)")
+				.withDescription(
+						"attribute(s) to read (mBeanName;attr1;attr2;attrN)")
 				.withArgName("mBean attribute(s)").hasArg(true)
 				.create(CommandLineOptions.READ_ATTRIBUTE);
 
@@ -264,7 +271,10 @@ public class JmxContextParserImpl implements JmxContextParser {
 						"operation to invoke (mBeanName;operationName;param1;param2;paramN)")
 				.withArgName("mBean operation").hasArg(true)
 				.create(CommandLineOptions.INVOKE);
-		
+
+		Option utcTimestamps = OptionBuilder.withDescription(
+				"use UTC timestamps").create(CommandLineOptions.UTC_TIMESTAMPS);
+
 		options.addOption(help);
 		options.addOption(host);
 		options.addOption(port);
@@ -276,6 +286,7 @@ public class JmxContextParserImpl implements JmxContextParser {
 		options.addOption(interval);
 		options.addOption(outputFile);
 		options.addOption(recordDelimiter);
+		options.addOption(utcTimestamps);
 
 		return options;
 	}

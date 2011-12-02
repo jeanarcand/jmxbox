@@ -42,5 +42,6 @@ class CommandLineOptionsComparator implements Comparator<Option> {
 		displayOrder.put(CommandLineOptions.INTERVAL_IN_SECONDS, Integer.valueOf(80));
 		displayOrder.put(CommandLineOptions.REPETITIONS, Integer.valueOf(90));
 		displayOrder.put(CommandLineOptions.RECORD_DELIMITER, Integer.valueOf(100));
+		displayOrder.put(CommandLineOptions.UTC_TIMESTAMPS, Integer.valueOf(110));
 	}
 }

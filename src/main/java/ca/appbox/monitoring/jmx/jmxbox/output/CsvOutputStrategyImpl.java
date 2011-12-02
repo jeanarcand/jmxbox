@@ -18,8 +18,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import ca.appbox.monitoring.jmx.jmxbox.commands.JmxCommandResult;
 import ca.appbox.monitoring.jmx.jmxbox.commons.JmxException;
@@ -58,7 +61,7 @@ public class CsvOutputStrategyImpl implements OutputStrategy {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(new Date());
+		sb.append(getTimestamp(context));
 		
 		for (JmxCommandResult currentResult : results) {
 			sb.append(context.getRecordDelimiter());
@@ -73,6 +76,17 @@ public class CsvOutputStrategyImpl implements OutputStrategy {
 		} catch (IOException e) {
 			throw new JmxException("Problem writing to file.", e);
 		}
+	}
+
+	private String getTimestamp(JmxContext context) {
+		
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
+		
+		if (context.isUtcTimestamps()) {
+			df.setTimeZone(TimeZone.getTimeZone("UTC"));
+		}
+		
+		return df.format(new Date());
 	}
 
 	private void open(File outputFile) throws JmxException {

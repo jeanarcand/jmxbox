@@ -39,11 +39,12 @@ public class JmxContext {
 	private final Integer repetitions;
 	private final File outputFile;
 	private final String recordDelimiter;
+	private final Boolean utcTimestamps;
 	private final List<JmxCommand> commands;
 
 	public JmxContext(String host, Integer port, String user,
 			String password, Integer intervalInSeconds, File outputFile,
-			String recordDelimiter, Integer repetitions) {
+			String recordDelimiter, Integer repetitions, Boolean utcTimestamps) {
 		super();
 		
 		this.host = host;
@@ -76,6 +77,9 @@ public class JmxContext {
 		else {
 			this.repetitions = repetitions;
 		}
+		
+		this.utcTimestamps = utcTimestamps;
+		
 	}
 
 	public String getHost() {
@@ -124,5 +128,9 @@ public class JmxContext {
 	
 	public boolean hasOutputFile() {
 		return (this.outputFile != null);
+	}
+	
+	public boolean isUtcTimestamps() {
+		return this.utcTimestamps.booleanValue();
 	}
 }

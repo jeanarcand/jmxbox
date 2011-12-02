@@ -31,5 +31,6 @@ public class CommandLineOptions {
 	public final static String RECORD_DELIMITER = "recordDelimiter";
 	public final static String INVOKE = "invokeOperation";
 	public final static String READ_ATTRIBUTE = "readAttribute";
+	public final static String UTC_TIMESTAMPS = "utcTimestamps";
 	
 }
