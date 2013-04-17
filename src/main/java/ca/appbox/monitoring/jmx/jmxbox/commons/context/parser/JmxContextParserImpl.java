@@ -65,11 +65,10 @@ public class JmxContextParserImpl implements JmxContextParser {
 
 			if (commandLine.hasOption(CommandLineOptions.HELP)
 					|| !isValidCommandLine(commandLine)) {
-				displayUsage();
+				throw new IllegalArgumentException();
 			}
-
+			
 			jmxContext = buildJmxContext(commandLine);
-
 		} catch (Exception e) {
 			displayUsage();
 			throw new JmxException("");
